@@ -17,19 +17,38 @@
  let resizePending=false;
  const resize=()=>{if(resizePending)return;resizePending=true;requestAnimationFrame(()=>{resizePending=false;send('baeumgil:resize');});};
  addEventListener('message',event=>{
-  if(!parentOrigin||event.origin!==parentOrigin||event.source!==parent||!event.data||event.data.type!=='baeumgil:theme'||!['light','dark'].includes(event.data.theme))return;
-  root.dataset.theme=event.data.theme;
+  if(!parentOrigin||event.origin!==parentOrigin||event.source!==parent||!event.data)return;
+  if(event.data.type==='baeumgil:language')window.SeatLanguage.select(event.data.language);
+  if(event.data.type==='baeumgil:theme'&&['light','dark'].includes(event.data.theme))root.dataset.theme=event.data.theme;
  });
  const init=()=>{
   const preferences=document.createElement('div');preferences.className='tool-preferences';
-  const theme=document.createElement('button');theme.type='button';theme.textContent='화면 테마 바꾸기';theme.onclick=()=>{root.dataset.theme=root.dataset.theme==='dark'?'light':'dark';};
-  const print=document.createElement('button');print.type='button';print.textContent='인쇄';print.onclick=()=>window.print();preferences.append(theme,print);document.body.append(preferences);
+  const theme=document.createElement('button');theme.type='button';theme.onclick=()=>{root.dataset.theme=root.dataset.theme==='dark'?'light':'dark';};
+  const print=document.createElement('button');print.type='button';print.onclick=()=>window.print();preferences.append(theme,print);document.body.append(preferences);
+  const selector=document.createElement('select');
+  if(!embedded){
+   const nativeNames=['한국어','English','简体中文','日本語','Español','Français','Tiếng Việt','Deutsch','Português do Brasil','Bahasa Indonesia'];
+   window.SeatLanguage.locales.forEach((code,i)=>selector.append(new Option(nativeNames[i],code)));
+   selector.onchange=()=>window.SeatLanguage.select(selector.value);
+   preferences.prepend(selector);
+  }
   const feedback=document.createElement('p');feedback.className='tool-feedback';feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');document.body.prepend(feedback);
-  let drawPending=false,timeout;
+  let drawPending=false,timeout,feedbackKey='';
+  const showFeedback=key=>{feedbackKey=key;feedback.textContent=window.SeatLanguage.text(key);};
+  const translateControls=()=>{
+   theme.textContent=window.SeatLanguage.text('theme');
+   print.textContent=window.SeatLanguage.text('print');
+   selector.setAttribute('aria-label',window.SeatLanguage.text('language'));
+   selector.value=window.SeatLanguage.language;
+   if(feedbackKey)showFeedback(feedbackKey);
+   document.querySelectorAll('.tool-result-board').forEach(board=>board.setAttribute('aria-label',window.SeatLanguage.text('preview')));
+  };
+  translateControls();
+  document.addEventListener('seat-language-change',translateControls);
   document.addEventListener('click',event=>{
    if(!event.target.closest?.('.tool-draw'))return;
-   drawPending=true;feedback.textContent='배치 결과를 확인하고 있습니다.';
-   clearTimeout(timeout);timeout=setTimeout(()=>{drawPending=false;feedback.textContent='안내 메시지와 배치 결과를 확인해 주세요.';},1800);
+   drawPending=true;showFeedback('checking');
+   clearTimeout(timeout);timeout=setTimeout(()=>{drawPending=false;showFeedback('checkResult');},1800);
   },true);
   let ready=false,observedMain=null;
   const sizeObserver=typeof ResizeObserver==='function'?new ResizeObserver(resize):null;
@@ -37,8 +56,8 @@
    const main=document.querySelector('#dc-root #tool-main');
    if(main&&main!==observedMain){if(observedMain)sizeObserver?.unobserve(observedMain);observedMain=main;sizeObserver?.observe(main);}
    if(main&&!ready){ready=true;send('baeumgil:ready');}
-   document.querySelectorAll('.tool-result-board').forEach(board=>{board.tabIndex=0;board.setAttribute('role','region');board.setAttribute('aria-label','자리 배치 미리보기. 가로·세로로 스크롤할 수 있습니다.');});
-   if(drawPending&&document.querySelector('#dc-root [data-tool-result]')){drawPending=false;clearTimeout(timeout);feedback.textContent='새 배치를 만들었습니다. 조건 충족 여부와 결과를 확인해 주세요.';}
+   document.querySelectorAll('.tool-result-board').forEach(board=>{board.tabIndex=0;board.setAttribute('role','region');board.setAttribute('aria-label',window.SeatLanguage.text('preview'));});
+   if(drawPending&&document.querySelector('#dc-root [data-tool-result]')){drawPending=false;clearTimeout(timeout);showFeedback('newResult');}
    resize();
   };
   new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});

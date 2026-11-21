@@ -3,6 +3,139 @@
 <head>
 <meta charset="utf-8">
 <title>교실 자리 배치 시스템 · 배움길</title>
+<script id="seat-language">
+(() => {
+  const locales = ['ko','en','zh-CN','ja','es','fr','vi','de','pt-BR','id'];
+  const rows = {
+    language: ["언어","Language","语言","言語","Idioma","Langue","Ngôn ngữ","Sprache","Idioma","Bahasa"],
+    title: ["교실 자리 배치 시스템","Classroom seating planner","教室座位安排","教室の席決め","Plan de asientos del aula","Plan de classe","Sơ đồ chỗ ngồi lớp học","Sitzplan für den Unterricht","Mapa de lugares da turma","Pengaturan tempat duduk kelas"],
+    brand: ["배움길","Baeumgil","Baeumgil","ペウムギル","Baeumgil","Baeumgil","Baeumgil","Baeumgil","Baeumgil","Baeumgil"],
+    credit: ["교실 자리 뽑기 · 제작 chxnho","Classroom seat draw · by chxnho","教室座位抽签 · chxnho 制作","教室の席決め · 制作 chxnho","Sorteo de asientos · por chxnho","Tirage des places · par chxnho","Bốc thăm chỗ ngồi · chxnho","Sitzplatzverlosung · von chxnho","Sorteio de lugares · por chxnho","Undian tempat duduk · oleh chxnho"],
+    skip: ["본문으로 건너뛰기","Skip to content","跳至正文","本文へ移動","Ir al contenido","Aller au contenu","Đến nội dung","Zum Inhalt","Ir para o conteúdo","Lewati ke konten"],
+    total: ["전체 {n}명","Students: {n}","共 {n} 人","全{n}人","Estudiantes: {n}","Élèves : {n}","Học sinh: {n}","Lernende: {n}","Estudantes: {n}","Siswa: {n}"],
+    boys: ["남 {n}","Boys: {n}","男生 {n} 人","男子 {n}人","Chicos: {n}","Garçons : {n}","Nam: {n}","Jungen: {n}","Meninos: {n}","Putra: {n}"],
+    girls: ["여 {n}","Girls: {n}","女生 {n} 人","女子 {n}人","Chicas: {n}","Filles : {n}","Nữ: {n}","Mädchen: {n}","Meninas: {n}","Putri: {n}"],
+    step: ["단계 {n}","Step {n}","第 {n} 步","ステップ {n}","Paso {n}","Étape {n}","Bước {n}","Schritt {n}","Etapa {n}","Langkah {n}"],
+    roster: ["학생 명단","Class roster","学生名单","生徒名簿","Lista de estudiantes","Liste des élèves","Danh sách học sinh","Klassenliste","Lista de estudantes","Daftar siswa"],
+    instructions: ["한 줄에 이름과 성별(남 또는 여)을 입력합니다.","Enter one name per line followed by M or F.","每行输入一个姓名，后接 M（男）或 F（女）。","1行に1人ずつ、名前の後に M（男）か F（女）を入力してください。","Escribe un nombre por línea seguido de M (chico) o F (chica).","Saisissez un nom par ligne suivi de M (garçon) ou F (fille).","Mỗi dòng nhập một tên rồi thêm M (nam) hoặc F (nữ).","Pro Zeile einen Namen eingeben, gefolgt von M (Junge) oder F (Mädchen).","Digite um nome por linha seguido de M (menino) ou F (menina).","Masukkan satu nama per baris diikuti M (putra) atau F (putri)."],
+    sample: ["홍길동 남\n이춘향 여","Alex M\nSam F","小明 M\n小文 F","太郎 M\n花子 F","Álex M\nAna F","Alex M\nCamille F","Minh M\nLan F","Alex M\nMia F","Alex M\nAna F","Adi M\nRani F"],
+    apply: ["명단 적용","Apply roster","应用名单","名簿を適用","Aplicar lista","Appliquer la liste","Áp dụng danh sách","Liste übernehmen","Aplicar lista","Terapkan daftar"],
+    clear: ["전체 비우기","Clear all","全部清空","すべてクリア","Vaciar todo","Tout effacer","Xóa tất cả","Alles leeren","Limpar tudo","Kosongkan semua"],
+    slotName: ["명단 저장 이름","Roster name","名单名称","名簿名","Nombre de la lista","Nom de la liste","Tên danh sách","Listenname","Nome da lista","Nama daftar"],
+    slotHint: ["저장 이름 (예: 1-1반)","Name to save (e.g. Class 1A)","保存名称（如一年一班）","保存名（例：1年1組）","Nombre para guardar (p. ej., 1.º A)","Nom à enregistrer (ex. classe A)","Tên lưu (ví dụ: lớp 1A)","Name zum Speichern (z. B. Klasse 1a)","Nome para salvar (ex.: turma 1A)","Nama simpan (mis.: kelas 1A)"],
+    saveSlot: ["명단·조건 저장","Save roster and rules","保存名单和规则","名簿と条件を保存","Guardar lista y reglas","Enregistrer liste et règles","Lưu danh sách và quy tắc","Liste und Regeln speichern","Salvar lista e regras","Simpan daftar dan aturan"],
+    saved: ["저장한 명단","Saved rosters","已保存名单","保存した名簿","Listas guardadas","Listes enregistrées","Danh sách đã lưu","Gespeicherte Listen","Listas salvas","Daftar tersimpan"],
+    remove: ["삭제","Delete","删除","削除","Eliminar","Supprimer","Xóa","Löschen","Excluir","Hapus"],
+    importRoster: ["명단 파일 가져오기","Import roster","导入名单","名簿を読み込む","Importar lista","Importer une liste","Nhập danh sách","Liste importieren","Importar lista","Impor daftar"],
+    exportRoster: ["명단 파일로 내보내기","Export roster","导出名单","名簿を書き出す","Exportar lista","Exporter la liste","Xuất danh sách","Liste exportieren","Exportar lista","Ekspor daftar"],
+    rules: ["제한 조건","Pairing rules","配对规则","ペアの条件","Reglas de parejas","Règles des binômes","Quy tắc ghép cặp","Paarregeln","Regras de pares","Aturan pasangan"],
+    rulesCount: ["조건 {n}개","Rules: {n}","规则数：{n}","条件：{n}件","Reglas: {n}","Règles : {n}","Quy tắc: {n}","Regeln: {n}","Regras: {n}","Aturan: {n}"],
+    expand: ["제한 조건 펼치기","Show rules","展开规则","条件を表示","Mostrar reglas","Afficher les règles","Hiện quy tắc","Regeln anzeigen","Mostrar regras","Tampilkan aturan"],
+    hide: ["이 단계 숨기기","Hide this step","收起此步","このステップを閉じる","Ocultar este paso","Masquer cette étape","Ẩn bước này","Schritt ausblenden","Ocultar esta etapa","Sembunyikan langkah ini"],
+    pickTwo: ["이름을 두 번 차례로 누르면 조건이 만들어집니다 →","Select two names in sequence to add a rule →","依次选择两个姓名以添加规则 →","名前を2人分順に選んで条件を追加します →","Elige dos nombres seguidos para añadir una regla →","Choisissez deux noms à la suite pour ajouter une règle →","Chọn lần lượt hai tên để thêm quy tắc →","Zwei Namen nacheinander für eine Regel auswählen →","Escolha dois nomes em sequência para adicionar uma regra →","Pilih dua nama berurutan untuk menambah aturan →"],
+    applyFirst: ["먼저 학생 명단을 적용해 주세요.","Apply the class roster first.","请先应用学生名单。","先に名簿を適用してください。","Aplica primero la lista.","Appliquez d’abord la liste.","Hãy áp dụng danh sách trước.","Zuerst die Klassenliste übernehmen.","Aplique primeiro a lista.","Terapkan daftar siswa dahulu."],
+    search: ["이름 검색","Search names","搜索姓名","名前を検索","Buscar nombres","Rechercher un nom","Tìm tên","Namen suchen","Buscar nomes","Cari nama"],
+    importRules: ["조건 파일 가져오기","Import rules","导入规则","条件を読み込む","Importar reglas","Importer les règles","Nhập quy tắc","Regeln importieren","Importar regras","Impor aturan"],
+    exportRules: ["조건 파일로 내보내기","Export rules","导出规则","条件を書き出す","Exportar reglas","Exporter les règles","Xuất quy tắc","Regeln exportieren","Exportar regras","Ekspor aturan"],
+    clearRules: ["전체 삭제","Delete all rules","删除所有规则","条件をすべて削除","Eliminar todas las reglas","Supprimer toutes les règles","Xóa mọi quy tắc","Alle Regeln löschen","Excluir todas as regras","Hapus semua aturan"],
+    settings: ["자리 조건","Seating settings","座位设置","座席設定","Opciones de asientos","Réglages des places","Thiết lập chỗ ngồi","Sitzeinstellungen","Opções de lugares","Pengaturan tempat duduk"],
+    pairing: ["짝 구성","Pairing","配对方式","ペアの組み方","Formación de parejas","Formation des binômes","Cách ghép cặp","Paarbildung","Formação de pares","Pembentukan pasangan"],
+    columns: ["교실 세로 줄","Seat columns","座位列数","座席の列数","Columnas de asientos","Colonnes de places","Số cột ghế","Sitzspalten","Colunas de assentos","Kolom kursi"],
+    extra: ["추가 규칙","Additional rules","附加规则","追加の条件","Reglas adicionales","Règles supplémentaires","Quy tắc bổ sung","Zusatzregeln","Regras adicionais","Aturan tambahan"],
+    draw: ["자리 뽑기","Draw seats","抽取座位","席を決める","Sortear asientos","Tirer les places","Bốc thăm chỗ ngồi","Plätze auslosen","Sortear lugares","Undi tempat duduk"],
+    result: ["자리 배치 결과","Seating chart","座位表","座席表","Plano de asientos","Plan de classe","Sơ đồ chỗ ngồi","Sitzplan","Mapa de lugares","Denah tempat duduk"],
+    image: ["이미지로 저장","Save image","保存图片","画像を保存","Guardar imagen","Enregistrer l’image","Lưu hình ảnh","Bild speichern","Salvar imagem","Simpan gambar"],
+    text: ["텍스트로 저장","Save text","保存文本","テキストを保存","Guardar texto","Enregistrer le texte","Lưu văn bản","Text speichern","Salvar texto","Simpan teks"],
+    board: ["칠판","Board","黑板","黒板","Pizarra","Tableau","Bảng","Tafel","Quadro","Papan tulis"],
+    back: ["교실 뒤","Back of room","教室后方","教室の後ろ","Fondo del aula","Fond de la classe","Cuối lớp","Raumrückseite","Fundo da sala","Belakang kelas"],
+    theme: ["화면 테마 바꾸기","Switch theme","切换主题","テーマを切り替え","Cambiar tema","Changer de thème","Đổi giao diện","Design wechseln","Alterar tema","Ganti tema"],
+    print: ["인쇄","Print","打印","印刷","Imprimir","Imprimer","In","Drucken","Imprimir","Cetak"],
+    checking: ["배치 결과를 확인하고 있습니다.","Checking seating results…","正在检查座位结果…","座席表を確認しています…","Comprobando el resultado…","Vérification du plan…","Đang kiểm tra kết quả…","Sitzplan wird geprüft…","Verificando o resultado…","Memeriksa hasil…"],
+    checkResult: ["안내 메시지와 배치 결과를 확인해 주세요.","Check the message and seating chart.","请查看提示和座位表。","案内と座席表を確認してください。","Revisa el mensaje y el plano.","Consultez le message et le plan.","Xem thông báo và sơ đồ chỗ ngồi.","Hinweis und Sitzplan prüfen.","Confira a mensagem e o mapa.","Periksa pesan dan denah."],
+    newResult: ["새 배치를 만들었습니다. 조건 충족 여부와 결과를 확인해 주세요.","New seating chart ready. Check the result and rule status.","已生成座位表，请查看结果及规则满足情况。","座席表を作成しました。結果と条件の達成状況を確認してください。","Nuevo plano listo. Revisa el resultado y las reglas.","Nouveau plan prêt. Vérifiez le résultat et les règles.","Đã tạo sơ đồ mới. Xem kết quả và mức đáp ứng quy tắc.","Neuer Sitzplan erstellt. Ergebnis und Regeln prüfen.","Novo mapa pronto. Confira o resultado e as regras.","Denah baru siap. Periksa hasil dan pemenuhan aturan."],
+    preview: ["자리 배치 미리보기. 가로·세로로 스크롤할 수 있습니다.","Seating preview. Scroll horizontally or vertically.","座位预览，可上下左右滚动。","座席表のプレビュー。縦横にスクロールできます。","Vista previa. Desplázate horizontal o verticalmente.","Aperçu du plan. Défilement horizontal et vertical.","Xem trước sơ đồ. Có thể cuộn ngang và dọc.","Sitzplanvorschau. Horizontal und vertikal scrollbar.","Prévia dos lugares. Role na horizontal ou vertical.","Pratinjau denah. Gulir horizontal atau vertikal."],
+    apart: ["짝 되지 않게","Keep apart","分开就座","ペアにしない","Separar","Séparer","Ngồi riêng","Trennen","Separar","Pisahkan"],
+    together: ["꼭 짝으로","Seat together","同桌","ペアにする","Sentar juntos","Placer ensemble","Ngồi cùng","Zusammensetzen","Sentar juntos","Dudukkan bersama"],
+    mixed: ["남녀 짝","Mixed pairs","男女同桌","男女ペア","Parejas mixtas","Binômes mixtes","Cặp nam nữ","Gemischte Paare","Pares mistos","Pasangan campuran"],
+    same: ["같은 성별 짝","Same-gender pairs","同性同桌","同性ペア","Parejas del mismo género","Binômes de même genre","Cặp cùng giới","Gleichgeschlechtliche Paare","Pares do mesmo gênero","Pasangan sesama gender"],
+    any: ["성별 상관없이","Any pairing","不限性别","性別を問わない","Sin distinción de género","Sans distinction de genre","Không phân biệt giới","Unabhängig vom Geschlecht","Sem distinção de gênero","Tanpa batasan gender"],
+    mixedHint: ["가능한 한 남학생·여학생이 짝이 되도록","Pair boys and girls where possible.","尽可能安排男女同桌。","できるだけ男女でペアにします。","Forma parejas mixtas cuando sea posible.","Former si possible des binômes fille-garçon.","Ghép nam với nữ khi có thể.","Möglichst Jungen und Mädchen zusammensetzen.","Formar pares mistos quando possível.","Pasangkan putra dan putri jika memungkinkan."],
+    sameHint: ["남학생끼리, 여학생끼리 짝이 되도록","Pair boys with boys and girls with girls.","安排男生与男生、女生与女生同桌。","男子同士、女子同士でペアにします。","Agrupa chicos con chicos y chicas con chicas.","Former des binômes de garçons ou de filles.","Ghép nam với nam, nữ với nữ.","Jungen mit Jungen und Mädchen mit Mädchen paaren.","Formar pares entre meninos ou entre meninas.","Pasangkan putra dengan putra dan putri dengan putri."],
+    anyHint: ["성별을 따지지 않고 무작위","Pair randomly regardless of gender.","不分性别随机配对。","性別を問わず無作為に組みます。","Forma parejas al azar sin distinción de género.","Tirer les binômes au hasard sans distinction de genre.","Ghép ngẫu nhiên không phân biệt giới.","Paare ohne Rücksicht auf das Geschlecht auslosen.","Formar pares aleatórios sem considerar o gênero.","Acak pasangan tanpa memperhatikan gender."],
+    columnOption: ["{n}줄 (2명×{desks})","{n} columns (2 × {desks})","{n} 列（2 × {desks}）","{n}列（2人×{desks}組）","{n} columnas (2 × {desks})","{n} colonnes (2 × {desks})","{n} cột (2 × {desks})","{n} Spalten (2 × {desks})","{n} colunas (2 × {desks})","{n} kolom (2 × {desks})"],
+    block: ["앞뒤 모둠까지 피하기","Also separate front and back pairs","前后桌也分开","前後のペアも離す","Separar también delante y detrás","Séparer aussi devant et derrière","Tách cả cặp trước và sau","Auch davor und dahinter trennen","Separar também à frente e atrás","Pisahkan juga pasangan depan dan belakang"],
+    blockHint: ["짝뿐 아니라 바로 앞·뒤 짝(4명 모둠)에서도 만나지 않게","Keep separated students out of the same front-and-back group of four.","指定分开的学生也不能在前后桌四人组中相遇。","離す生徒は前後2組の4人グループでも別にします。","Evita que los alumnos separados coincidan en un grupo de cuatro entre dos filas.","Séparer aussi les élèves dans les groupes de quatre de deux tables successives.","Không xếp học sinh cần tách trong cùng nhóm bốn người ở hai bàn trước sau.","Getrennte Schüler auch nicht in dieselbe Vierergruppe hintereinander setzen.","Evitar que estudantes separados fiquem no mesmo grupo de quatro em duas fileiras seguidas.","Jauhkan siswa yang harus terpisah juga dalam kelompok empat di dua meja berurutan."],
+    avoidPrevious: ["지난 짝과 겹치지 않게","Avoid previous partners","避免重复同桌","前回のペアを避ける","Evitar parejas anteriores","Éviter les anciens binômes","Tránh bạn cùng bàn cũ","Frühere Sitzpartner meiden","Evitar pares anteriores","Hindari pasangan sebelumnya"],
+    avoidHint: ["지난번 짝이었던 학생들을 최대한 피합니다","Avoid repeating the last partners where possible.","尽量避免重复上次的同桌。","できるだけ前回と違うペアにします。","Evita repetir las últimas parejas si es posible.","Éviter de reformer les derniers binômes si possible.","Hạn chế ghép lại cặp cũ nếu có thể.","Die letzten Paare möglichst nicht wiederholen.","Evite repetir os últimos pares quando possível.","Sebisa mungkin jangan ulangi pasangan terakhir."],
+    loadPrevious: ["지난 배치 불러오기","Load previous chart","导入上次座位表","前回の座席表を読み込む","Cargar plano anterior","Charger le plan précédent","Tải sơ đồ trước","Vorherigen Sitzplan laden","Carregar mapa anterior","Muat denah sebelumnya"],
+    loadHint: ["이 도구에서 저장한 자리 배치 텍스트 파일을 선택하세요.","Choose a seating text file saved by this tool.","请选择本工具保存的座位表文本文件。","このツールで保存した座席表のテキストを選んでください。","Elige un plano de texto guardado con esta herramienta.","Choisissez un plan texte enregistré avec cet outil.","Chọn tệp văn bản sơ đồ đã lưu bằng công cụ này.","Eine mit diesem Werkzeug gespeicherte Sitzplan-Textdatei wählen.","Escolha um mapa em texto salvo por esta ferramenta.","Pilih berkas teks denah yang disimpan oleh alat ini."],
+    enablePrevious: ["먼저 ‘지난 짝과 겹치지 않게’를 켜주세요.","Enable “Avoid previous partners” first.","请先启用“避免重复同桌”。","先に「前回のペアを避ける」をオンにしてください。","Primero activa «Evitar parejas anteriores».","Activez d’abord « Éviter les anciens binômes ».","Trước hết hãy bật “Tránh bạn cùng bàn cũ”.","Zuerst „Frühere Sitzpartner meiden“ aktivieren.","Ative primeiro “Evitar pares anteriores”.","Aktifkan “Hindari pasangan sebelumnya” dahulu."],
+    loadedFile: ["불러온 파일: {name}","Loaded file: {name}","已加载文件：{name}","読み込んだファイル：{name}","Archivo cargado: {name}","Fichier chargé : {name}","Tệp đã tải: {name}","Geladene Datei: {name}","Arquivo carregado: {name}","Berkas dimuat: {name}"],
+    lastUsed: ["직전에 뽑은 짝을 기준으로 피합니다.","Using partners from the last draw.","将避免上次抽取的同桌。","直前に決めたペアを避けます。","Se usarán las parejas del último sorteo.","Les binômes du dernier tirage seront évités.","Sẽ tránh các cặp vừa bốc thăm.","Die Paare der letzten Ziehung werden vermieden.","Os pares do último sorteio serão evitados.","Pasangan undian terakhir akan dihindari."],
+    previousHint: ["지난 결과 파일을 불러오면 그 짝을 피합니다.","Load a previous chart to avoid those partners.","导入旧座位表以避免重复同桌。","以前の座席表を読み込むとそのペアを避けます。","Carga un plano anterior para evitar esas parejas.","Chargez un ancien plan pour éviter ces binômes.","Tải sơ đồ cũ để tránh các cặp đó.","Früheren Sitzplan laden, um diese Paare zu meiden.","Carregue um mapa anterior para evitar esses pares.","Muat denah lama untuk menghindari pasangan tersebut."],
+    plan: ["{mode} · 세로 {cols}줄 · 가로 {rows}줄 (한 줄에 {desks}짝)","{mode} · {cols} columns × {rows} rows · pairs per row: {desks}","{mode} · {cols} 列 × {rows} 排 · 每排 {desks} 对","{mode} · {cols}列 × {rows}行 · 1行に{desks}組","{mode} · {cols} columnas × {rows} filas · parejas por fila: {desks}","{mode} · {cols} colonnes × {rows} rangées · {desks} binômes par rangée","{mode} · {cols} cột × {rows} hàng · {desks} cặp mỗi hàng","{mode} · {cols} Spalten × {rows} Reihen · {desks} Paare je Reihe","{mode} · {cols} colunas × {rows} fileiras · {desks} pares por fileira","{mode} · {cols} kolom × {rows} baris · {desks} pasangan per baris"],
+    emptyCount: ["빈자리 {n}칸","Empty seats: {n}","空位：{n}","空席：{n}","Asientos vacíos: {n}","Places libres : {n}","Chỗ trống: {n}","Freie Plätze: {n}","Lugares vazios: {n}","Kursi kosong: {n}"],
+    planHint: ["명단을 적용하면 학생 수에 맞춰 줄 수가 자동으로 계산됩니다.","Apply the roster to calculate the rows automatically.","应用名单后将自动计算排数。","名簿を適用すると行数が自動計算されます。","Aplica la lista para calcular las filas.","Appliquez la liste pour calculer les rangées.","Áp dụng danh sách để tính số hàng tự động.","Liste übernehmen, um die Reihen automatisch zu berechnen.","Aplique a lista para calcular as fileiras.","Terapkan daftar untuk menghitung baris secara otomatis."],
+    selected: ["{name} 선택됨 — 상대 학생을 선택하세요. 다시 누르면 취소합니다.","{name} selected. Choose another student, or select the same name to cancel.","已选 {name}。请选择另一名学生，再选同一姓名可取消。","{name}を選択中。別の生徒を選ぶか、同じ名前で取り消します。","Has elegido a {name}. Elige otro estudiante o repite el nombre para cancelar.","{name} sélectionné. Choisissez un autre élève ou le même nom pour annuler.","Đã chọn {name}. Chọn bạn khác hoặc chọn lại để hủy.","{name} ausgewählt. Einen anderen Namen wählen oder zum Abbrechen nochmals denselben.","{name} selecionado. Escolha outro estudante ou repita o nome para cancelar.","{name} dipilih. Pilih siswa lain atau pilih nama yang sama untuk membatalkan."],
+    rulesSummary: ["짝 금지 {a}건 · 꼭 짝 {b}건","Keep apart: {a} · Seat together: {b}","分开：{a} · 同桌：{b}","離す：{a}件 · ペア：{b}件","Separar: {a} · Juntar: {b}","Séparer : {a} · Réunir : {b}","Tách: {a} · Ghép: {b}","Trennen: {a} · Zusammensetzen: {b}","Separar: {a} · Juntar: {b}","Pisah: {a} · Bersama: {b}"],
+    noRules: ["설정된 조건이 없습니다","No rules set","未设置规则","条件はありません","Sin reglas","Aucune règle","Chưa có quy tắc","Keine Regeln festgelegt","Nenhuma regra definida","Belum ada aturan"],
+    modeHint: ["현재 조건: {mode}","Adding rule: {mode}","当前规则：{mode}","追加する条件：{mode}","Regla actual: {mode}","Règle à ajouter : {mode}","Quy tắc đang thêm: {mode}","Aktuelle Regel: {mode}","Regra atual: {mode}","Aturan saat ini: {mode}"],
+    attempts: ["{n}회 시도","Attempts: {n}","尝试次数：{n}","試行：{n}回","Intentos: {n}","Essais : {n}","Số lần thử: {n}","Versuche: {n}","Tentativas: {n}","Percobaan: {n}"],
+    violations: ["조건 위반 {n}건","Unmet rules: {n}","未满足规则：{n}","未達成の条件：{n}件","Reglas incumplidas: {n}","Règles non satisfaites : {n}","Quy tắc chưa đạt: {n}","Unerfüllte Regeln: {n}","Regras não atendidas: {n}","Aturan belum terpenuhi: {n}"],
+    allMet: ["조건 완전 충족","All rules met","所有规则均满足","すべての条件を達成","Todas las reglas cumplidas","Toutes les règles respectées","Đạt mọi quy tắc","Alle Regeln erfüllt","Todas as regras atendidas","Semua aturan terpenuhi"],
+    empty: ["빈자리","Empty seat","空位","空席","Asiento vacío","Place libre","Chỗ trống","Freier Platz","Lugar vazio","Kursi kosong"],
+    row: ["{n}줄","Row {n}","第 {n} 排","{n}行目","Fila {n}","Rangée {n}","Hàng {n}","Reihe {n}","Fileira {n}","Baris {n}"],
+    student: ["학생","Students","学生","生徒","Estudiantes","Élèves","Học sinh","Schüler","Estudantes","Siswa"],
+    classroom: ["교실","Classroom","教室","教室","Aula","Classe","Lớp học","Klasse","Turma","Kelas"],
+    rosterFile: ["{name} 명단","{name} roster","{name} 名单","{name} 名簿","{name} lista","{name} liste","{name} danh sách","{name} Klassenliste","{name} lista","{name} daftar"],
+    rulesFile: ["{name} 제한조건","{name} rules","{name} 规则","{name} 条件","{name} reglas","{name} règles","{name} quy tắc","{name} Regeln","{name} regras","{name} aturan"],
+    chartFile: ["{name} 자리배치","{name} seating chart","{name} 座位表","{name} 座席表","{name} plano","{name} plan","{name} sơ đồ","{name} Sitzplan","{name} mapa de lugares","{name} denah"],
+    cols: ["{n}줄","Columns: {n}","列数：{n}","{n}列","Columnas: {n}","Colonnes : {n}","Số cột: {n}","Spalten: {n}","Colunas: {n}","Kolom: {n}"],
+    success: ["{n}번째 시도에서 모든 제한 조건을 만족하는 자리를 찾았습니다.","All rules met on attempt {n}.","第 {n} 次尝试满足了所有规则。","{n}回目の試行ですべての条件を満たしました。","Se cumplieron todas las reglas en el intento {n}.","Toutes les règles ont été respectées à l’essai {n}.","Đã đạt mọi quy tắc ở lần thử thứ {n}.","Alle Regeln wurden im Versuch {n} erfüllt.","Todas as regras foram atendidas na tentativa {n}.","Semua aturan terpenuhi pada percobaan ke-{n}."],
+    partial: ["8,000회 탐색 후 조건 위반 {n}건이 남은 후보입니다. 조건을 줄이거나 ‘앞뒤 모둠까지 피하기’를 꺼보세요.","After 8,000 attempts this chart still has {n} unmet rules. Remove some rules or turn off front-and-back separation.","尝试 8,000 次后仍有 {n} 项规则未满足。请减少规则或关闭前后桌分隔。","8,000回試しましたが条件が{n}件未達成です。条件を減らすか前後のペアを離す設定を解除してください。","Tras 8.000 intentos quedan {n} reglas incumplidas. Quita reglas o desactiva la separación entre filas.","Après 8 000 essais, {n} règles restent non satisfaites. Retirez des règles ou désactivez la séparation devant et derrière.","Sau 8.000 lần thử vẫn còn {n} quy tắc chưa đạt. Giảm quy tắc hoặc tắt tách cặp trước sau.","Nach 8.000 Versuchen sind noch {n} Regeln unerfüllt. Regeln reduzieren oder Trennung nach vorn und hinten deaktivieren.","Após 8.000 tentativas ainda há {n} regras não atendidas. Reduza as regras ou desative a separação à frente e atrás.","Setelah 8.000 percobaan, {n} aturan belum terpenuhi. Kurangi aturan atau nonaktifkan pemisahan depan dan belakang."],
+    badRoster: ["명단을 읽지 못했습니다. 형식을 확인해 주세요.","Could not read the roster. Check the format.","无法读取名单，请检查格式。","名簿を読み込めません。形式を確認してください。","No se pudo leer la lista. Revisa el formato.","Liste illisible. Vérifiez le format.","Không đọc được danh sách. Kiểm tra định dạng.","Liste nicht lesbar. Format prüfen.","Não foi possível ler a lista. Verifique o formato.","Daftar tidak dapat dibaca. Periksa formatnya."],
+    applied: ["{n}명의 명단을 적용했습니다.","Roster applied. Students: {n}.","名单已应用，共 {n} 名学生。","{n}人の名簿を適用しました。","Lista aplicada. Estudiantes: {n}.","Liste appliquée. Élèves : {n}.","Đã áp dụng danh sách {n} học sinh.","Liste übernommen. Schülerzahl: {n}.","Lista aplicada. Estudantes: {n}.","Daftar diterapkan. Jumlah siswa: {n}."],
+    cleared: ["모두 비웠습니다.","Everything cleared.","已全部清空。","すべてクリアしました。","Se ha vaciado todo.","Tout a été effacé.","Đã xóa tất cả.","Alles geleert.","Tudo foi limpo.","Semua dikosongkan."],
+    needName: ["저장할 이름을 입력해 주세요.","Enter a name to save the roster.","请输入名单保存名称。","保存名を入力してください。","Escribe un nombre para guardar la lista.","Saisissez un nom pour enregistrer la liste.","Nhập tên để lưu danh sách.","Zum Speichern einen Namen eingeben.","Digite um nome para salvar a lista.","Masukkan nama untuk menyimpan daftar."],
+    noRoster: ["적용된 명단이 없습니다.","No roster applied.","尚未应用名单。","名簿が適用されていません。","No hay lista aplicada.","Aucune liste appliquée.","Chưa áp dụng danh sách.","Keine Liste übernommen.","Nenhuma lista aplicada.","Belum ada daftar yang diterapkan."],
+    slotSaved: ["‘{name}’ 명단과 제한 조건을 저장했습니다.","Saved the roster and rules for “{name}”.","已保存“{name}”的名单和规则。","「{name}」の名簿と条件を保存しました。","Lista y reglas de «{name}» guardadas.","Liste et règles de « {name} » enregistrées.","Đã lưu danh sách và quy tắc của “{name}”.","Liste und Regeln für „{name}“ gespeichert.","Lista e regras de “{name}” salvas.","Daftar dan aturan “{name}” disimpan."],
+    slotLoaded: ["‘{name}’을 불러왔습니다. 학생 {n}명, 조건 {rules}개.","Loaded “{name}”. Students: {n}. Rules: {rules}.","已加载“{name}”。学生：{n}，规则：{rules}。","「{name}」を読み込みました。生徒{n}人、条件{rules}件。","«{name}» cargada. Estudiantes: {n}. Reglas: {rules}.","« {name} » chargée. Élèves : {n}. Règles : {rules}.","Đã tải “{name}”. Học sinh: {n}. Quy tắc: {rules}.","„{name}“ geladen. Lernende: {n}. Regeln: {rules}.","“{name}” carregada. Estudantes: {n}. Regras: {rules}.","“{name}” dimuat. Siswa: {n}. Aturan: {rules}."],
+    badFile: ["파일을 읽지 못했습니다.","Could not read the file.","无法读取文件。","ファイルを読み込めません。","No se pudo leer el archivo.","Impossible de lire le fichier.","Không đọc được tệp.","Datei nicht lesbar.","Não foi possível ler o arquivo.","Berkas tidak dapat dibaca."],
+    imported: ["{name}에서 {n}명을 불러왔습니다.","Loaded {n} students from {name}.","已从 {name} 导入 {n} 名学生。","{name}から{n}人を読み込みました。","Se cargaron {n} estudiantes de {name}.","{n} élèves importés depuis {name}.","Đã tải {n} học sinh từ {name}.","{n} Lernende aus {name} geladen.","{n} estudantes carregados de {name}.","{n} siswa dimuat dari {name}."],
+    duplicate: ["{a} · {b} 조건은 이미 있습니다.","This rule already exists for {a} and {b}.","{a} 和 {b} 已有此规则。","{a}と{b}にはこの条件が既にあります。","Esta regla ya existe para {a} y {b}.","Cette règle existe déjà pour {a} et {b}.","Quy tắc này đã có cho {a} và {b}.","Diese Regel für {a} und {b} besteht bereits.","Esta regra já existe para {a} e {b}.","Aturan ini sudah ada untuk {a} dan {b}."],
+    ruleAdded: ["{a} · {b} 조건을 설정했습니다: {rule}","Rule added for {a} and {b}: {rule}.","已为 {a} 和 {b} 添加规则：{rule}。","{a}と{b}に条件を設定しました：{rule}。","Regla para {a} y {b}: {rule}.","Règle ajoutée pour {a} et {b} : {rule}.","Đã thêm quy tắc cho {a} và {b}: {rule}.","Regel für {a} und {b} hinzugefügt: {rule}.","Regra para {a} e {b}: {rule}.","Aturan untuk {a} dan {b} ditambahkan: {rule}."],
+    rulesCleared: ["제한 조건을 모두 삭제했습니다.","All rules deleted.","所有规则已删除。","条件をすべて削除しました。","Se eliminaron todas las reglas.","Toutes les règles ont été supprimées.","Đã xóa mọi quy tắc.","Alle Regeln gelöscht.","Todas as regras foram excluídas.","Semua aturan dihapus."],
+    rulesLoaded: ["제한 조건 {n}개를 불러왔습니다.","Rules loaded: {n}.","已导入 {n} 项规则。","条件を{n}件読み込みました。","Reglas cargadas: {n}.","Règles chargées : {n}.","Đã tải {n} quy tắc.","Geladene Regeln: {n}.","Regras carregadas: {n}.","Aturan dimuat: {n}."],
+    badRules: ["제한 조건 파일을 읽지 못했습니다.","Could not read the rules file.","无法读取规则文件。","条件ファイルを読み込めません。","No se pudo leer el archivo de reglas.","Impossible de lire le fichier de règles.","Không đọc được tệp quy tắc.","Regeldatei nicht lesbar.","Não foi possível ler o arquivo de regras.","Berkas aturan tidak dapat dibaca."],
+    noExportRules: ["내보낼 제한 조건이 없습니다.","No rules to export.","没有可导出的规则。","書き出す条件がありません。","No hay reglas para exportar.","Aucune règle à exporter.","Không có quy tắc để xuất.","Keine Regeln zum Exportieren.","Nenhuma regra para exportar.","Tidak ada aturan untuk diekspor."],
+    badPrevious: ["지난 배치 파일을 읽지 못했습니다. 이 도구에서 저장한 결과 텍스트를 선택하세요.","Could not read previous partners. Choose a seating text file saved by this tool.","无法读取上次配对。请选择本工具保存的座位表文本。","以前のペアを読み込めません。このツールで保存した座席表のテキストを選んでください。","No se pudieron leer las parejas. Elige un plano de texto guardado con esta herramienta.","Impossible de lire les anciens binômes. Choisissez un plan texte enregistré avec cet outil.","Không đọc được cặp trước. Chọn tệp sơ đồ văn bản đã lưu bằng công cụ này.","Frühere Paare nicht lesbar. Eine mit diesem Werkzeug gespeicherte Sitzplan-Textdatei wählen.","Não foi possível ler os pares. Escolha um mapa em texto salvo nesta ferramenta.","Pasangan sebelumnya tidak terbaca. Pilih berkas teks denah dari alat ini."],
+    pairsLoaded: ["지난 짝 {n}쌍을 불러왔습니다. 이 짝은 최대한 피합니다.","Loaded {n} previous pairs. The draw will avoid them where possible.","已导入 {n} 对旧同桌，将尽量避免重复。","以前のペアを{n}組読み込みました。できるだけ重複を避けます。","Se cargaron {n} parejas anteriores. Se evitarán si es posible.","{n} anciens binômes chargés. Le tirage les évitera si possible.","Đã tải {n} cặp trước. Sẽ tránh ghép lại khi có thể.","{n} frühere Paare geladen. Wiederholungen werden möglichst vermieden.","{n} pares anteriores carregados. Serão evitados quando possível.","{n} pasangan sebelumnya dimuat. Pengundian akan menghindarinya jika memungkinkan."],
+  };
+  const requested = new URLSearchParams(location.search).get('lang');
+  let language = locales.includes(requested) ? requested : 'ko';
+  const dictionary = lang => Object.fromEntries(Object.entries(rows).map(([key, row]) => [key, row[locales.indexOf(lang)]]));
+  let words = dictionary(language);
+  function text(key, values = {}) {
+    return words[key].replace(/\{(\w+)\}/g, (_, name) => String(values[name]));
+  }
+  function updateDocument() {
+    document.documentElement.lang = language;
+    document.title = words.title + ' · ' + words.brand;
+    const skip = document.querySelector('.tool-skip');
+    if (skip) skip.textContent = words.skip;
+  }
+  function select(lang) {
+    if (!locales.includes(lang) || language === lang) return;
+    language = lang;
+    words = dictionary(lang);
+    updateDocument();
+    document.dispatchEvent(new Event('seat-language-change'));
+  }
+  window.SeatLanguage = { locales:Object.freeze(locales), get words() { return words; }, get language() { return language; }, text, select };
+  updateDocument();
+  document.addEventListener('DOMContentLoaded', updateDocument, {once:true});
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
 <link rel="stylesheet" href="./baeumgil.css"><script defer src="./tool-bridge.js"></script></head>
@@ -24,13 +157,13 @@
 <div style="min-height: 100vh; background: radial-gradient(120% 90% at 50% 0%, var(--soft) 0%, var(--bg) 55%); padding: 0 0 90px">
 
   <header class="tool-intro" style="padding: 52px 24px 40px; text-align: center; border-bottom: 1px solid var(--line)">
-    <div style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.42em; text-transform: uppercase; color: var(--accent)">classroom seat draw &nbsp;·&nbsp; made by chxnho</div>
-    <h1 style="margin: 14px 0 0; font-family: Pretendard, sans-serif; font-weight: 800; font-size: 44px; letter-spacing: -0.01em; color: var(--text)">교실 자리 배치 시스템</h1>
+    <div style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.42em; text-transform: uppercase; color: var(--accent)">{{ words.credit }}</div>
+    <h1 style="margin: 14px 0 0; font-family: Pretendard, sans-serif; font-weight: 800; font-size: 44px; letter-spacing: -0.01em; color: var(--text)">{{ words.title }}</h1>
     <div style="width: 46px; height: 1px; background: var(--accent); margin: 20px auto 0"></div>
     <div style="display: flex; justify-content: center; gap: 10px; margin-top: 22px; flex-wrap: wrap; font-size: 14px; font-weight: 700">
-      <span style="padding: 8px 16px; background: rgba(243,236,220,0.06); border: 1px solid var(--line); border-radius: 999px; color: var(--muted); white-space: nowrap">전체 {{ total }}명</span>
-      <span style="padding: 8px 16px; background: rgba(122,160,214,0.1); border: 1px solid #33445c; border-radius: 999px; color: #9dbbe4; white-space: nowrap">남 {{ maleCount }}</span>
-      <span style="padding: 8px 16px; background: rgba(214,138,146,0.1); border: 1px solid #5c3a3e; border-radius: 999px; color: #e3a9af; white-space: nowrap">여 {{ femaleCount }}</span>
+      <span style="padding: 8px 16px; background: rgba(243,236,220,0.06); border: 1px solid var(--line); border-radius: 999px; color: var(--muted); white-space: nowrap">{{ totalLabel }}</span>
+      <span style="padding: 8px 16px; background: rgba(122,160,214,0.1); border: 1px solid #33445c; border-radius: 999px; color: #9dbbe4; white-space: nowrap">{{ maleLabel }}</span>
+      <span style="padding: 8px 16px; background: rgba(214,138,146,0.1); border: 1px solid #5c3a3e; border-radius: 999px; color: #e3a9af; white-space: nowrap">{{ femaleLabel }}</span>
     </div>
   </header>
 
@@ -39,32 +172,32 @@
     <!-- STEP 1 -->
     <section style="background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 28px; box-shadow: 0 8px 28px rgba(26,52,54,0.06)">
       <div style="display: flex; align-items: baseline; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line)">
-        <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.2em; color: var(--accent)">STEP 01</span>
-        <h2 style="margin: 0; font-family: Pretendard, sans-serif; font-size: 23px; font-weight: 800">학생 명단</h2>
+        <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.2em; color: var(--accent)">{{ stepOne }}</span>
+        <h2 style="margin: 0; font-family: Pretendard, sans-serif; font-size: 23px; font-weight: 800">{{ words.roster }}</h2>
       </div>
-      <p style="margin: 14px 0 12px; font-size: 14px; color: var(--muted); line-height: 1.7">한 줄에 <b>이름 성별</b>로 입력합니다.</p>
-      <textarea aria-label="학생 명단" value="{{ input }}" onChange="{{ onInput }}" spellcheck="false" placeholder="홍길동 남&#10;이춘향 여" style="width: 100%; min-height: 148px; resize: vertical; padding: 16px; font-size: 15px; line-height: 1.8; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--text)"></textarea>
+      <p style="margin: 14px 0 12px; font-size: 14px; color: var(--muted); line-height: 1.7">{{ words.instructions }}</p>
+      <textarea aria-label="{{ words.roster }}" value="{{ input }}" onChange="{{ onInput }}" spellcheck="false" placeholder="{{ words.sample }}" style="width: 100%; min-height: 148px; resize: vertical; padding: 16px; font-size: 15px; line-height: 1.8; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--text)"></textarea>
       <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center">
-        <button onClick="{{ applyRoster }}" style="padding: 11px 22px; font-size: 14px; font-weight: 700; color: var(--surface); background: var(--text); border: none; border-radius: 12px; cursor: pointer; letter-spacing: 0.02em" style-hover="background: var(--accent); color: var(--accent-ink)">명단 적용</button>
-        <button onClick="{{ clearRoster }}" style="padding: 11px 16px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 12px; cursor: pointer" style-hover="border-color: var(--accent)">전체 비우기</button>
+        <button onClick="{{ applyRoster }}" style="padding: 11px 22px; font-size: 14px; font-weight: 700; color: var(--surface); background: var(--text); border: none; border-radius: 12px; cursor: pointer; letter-spacing: 0.02em" style-hover="background: var(--accent); color: var(--accent-ink)">{{ words.apply }}</button>
+        <button onClick="{{ clearRoster }}" style="padding: 11px 16px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 12px; cursor: pointer" style-hover="border-color: var(--accent)">{{ words.clear }}</button>
         <span style="flex: 1; min-width: 12px"></span>
-        <input value="{{ rosterName }}" onChange="{{ onRosterName }}" aria-label="명단 저장 이름" placeholder="저장 이름 (예: 1-1반)" style="width: 180px; padding: 11px 14px; font-size: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface)" />
-        <button onClick="{{ saveSlot }}" style="padding: 11px 18px; font-size: 14px; font-weight: 700; color: var(--text); background: var(--soft); border: none; border-radius: 12px; cursor: pointer" style-hover="background: var(--accent); color: var(--accent-ink)">명단·조건 저장</button>
+        <input value="{{ rosterName }}" onChange="{{ onRosterName }}" aria-label="{{ words.slotName }}" placeholder="{{ words.slotHint }}" style="width: 180px; padding: 11px 14px; font-size: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface)" />
+        <button onClick="{{ saveSlot }}" style="padding: 11px 18px; font-size: 14px; font-weight: 700; color: var(--text); background: var(--soft); border: none; border-radius: 12px; cursor: pointer" style-hover="background: var(--accent); color: var(--accent-ink)">{{ words.saveSlot }}</button>
       </div>
       <sc-if value="{{ hasSlots }}" hint-placeholder-val="{{ false }}">
         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line)">
-          <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.18em; color: var(--accent)">SAVED</span>
+          <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.18em; color: var(--accent)">{{ words.saved }}</span>
           <sc-for list="{{ slots }}" as="slot" hint-placeholder-count="0">
             <span style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 6px 6px 14px; background: var(--soft); border: 1px solid var(--line); border-radius: 999px; font-size: 14px">
               <button onClick="{{ slot.load }}" style="border: none; background: none; padding: 0; font-size: 14px; font-weight: 700; cursor: pointer; color: var(--text)">{{ slot.label }}</button>
-              <button onClick="{{ slot.remove }}" title="삭제" style="border: none; background: var(--line); color: var(--muted); width: 20px; height: 20px; line-height: 1; border-radius: 999px; cursor: pointer; font-size: 14px">×</button>
+              <button onClick="{{ slot.remove }}" title="{{ words.remove }}" style="border: none; background: var(--line); color: var(--muted); width: 20px; height: 20px; line-height: 1; border-radius: 999px; cursor: pointer; font-size: 14px">×</button>
             </span>
           </sc-for>
         </div>
       </sc-if>
       <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px">
-        <button onClick="{{ pickRosterFile }}" style="padding: 8px 14px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; cursor: pointer" style-hover="color: var(--text)">명단 파일 가져오기</button>
-        <button onClick="{{ exportRoster }}" style="padding: 8px 14px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; cursor: pointer" style-hover="color: var(--text)">명단 파일로 내보내기</button>
+        <button onClick="{{ pickRosterFile }}" style="padding: 8px 14px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; cursor: pointer" style-hover="color: var(--text)">{{ words.importRoster }}</button>
+        <button onClick="{{ exportRoster }}" style="padding: 8px 14px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; cursor: pointer" style-hover="color: var(--text)">{{ words.exportRoster }}</button>
         <input type="file" accept=".txt,.json" ref="{{ rosterFileRef }}" onChange="{{ onRosterFile }}" style="display: none" />
       </div>
     </section>
@@ -72,11 +205,11 @@
     <!-- STEP 2 접힘 -->
     <sc-if value="{{ step2Hidden }}" hint-placeholder-val="{{ false }}">
       <section style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px; background: rgba(243,236,220,0.05); border: 1px solid var(--line); border-radius: 24px; padding: 16px 22px">
-        <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.2em; color: var(--accent)">STEP 02</span>
-        <span style="font-size: 14px; color: var(--muted); font-weight: 700">제한 조건 {{ constraintCount }}개 설정됨</span>
+        <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.2em; color: var(--accent)">{{ stepTwo }}</span>
+        <span style="font-size: 14px; color: var(--muted); font-weight: 700">{{ rulesCountLabel }}</span>
         <span style="font-size: 14px; color: var(--muted)">{{ constraintSummary }}</span>
         <span style="flex: 1; min-width: 10px"></span>
-        <button onClick="{{ toggleStep2 }}" style="padding: 9px 18px; font-size: 14px; font-weight: 700; color: var(--text); background: var(--soft); border: none; border-radius: 12px; cursor: pointer" style-hover="background: var(--accent); color: var(--accent-ink)">제한 조건 펼치기</button>
+        <button onClick="{{ toggleStep2 }}" style="padding: 9px 18px; font-size: 14px; font-weight: 700; color: var(--text); background: var(--soft); border: none; border-radius: 12px; cursor: pointer" style-hover="background: var(--accent); color: var(--accent-ink)">{{ words.expand }}</button>
       </section>
     </sc-if>
 
@@ -84,14 +217,14 @@
     <sc-if value="{{ step2Open }}" hint-placeholder-val="{{ true }}">
       <section style="background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 28px; box-shadow: 0 8px 28px rgba(26,52,54,0.06)">
         <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line)">
-          <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.2em; color: var(--accent)">STEP 02</span>
-          <h2 style="margin: 0; font-family: Pretendard, sans-serif; font-size: 23px; font-weight: 800">제한 조건</h2>
+          <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.2em; color: var(--accent)">{{ stepTwo }}</span>
+          <h2 style="margin: 0; font-family: Pretendard, sans-serif; font-size: 23px; font-weight: 800">{{ words.rules }}</h2>
           <span style="flex: 1; min-width: 10px"></span>
-          <button onClick="{{ toggleStep2 }}" style="padding: 8px 16px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 12px; cursor: pointer" style-hover="border-color: var(--accent)">이 단계 숨기기</button>
+          <button onClick="{{ toggleStep2 }}" style="padding: 8px 16px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 12px; cursor: pointer" style-hover="border-color: var(--accent)">{{ words.hide }}</button>
         </div>
 
         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 16px 0 14px">
-          <span style="font-size: 14px; color: var(--muted)">이름을 <b>두 번 차례로</b> 누르면 조건이 만들어집니다 →</span>
+          <span style="font-size: 14px; color: var(--muted)">{{ words.pickTwo }}</span>
           <sc-for list="{{ pairModes }}" as="opt" hint-placeholder-count="2">
             <button aria-pressed="{{ opt.active }}" onClick="{{ opt.click }}" style="{{ opt.style }}">{{ opt.label }}</button>
           </sc-for>
@@ -113,16 +246,16 @@
           </div>
         </sc-if>
         <sc-if value="{{ noStudents }}" hint-placeholder-val="{{ false }}">
-          <div style="padding: 28px; text-align: center; font-size: 14px; color: var(--muted); background: var(--soft); border: 1px dashed var(--line); border-radius: 12px">먼저 STEP 01에서 명단을 적용해 주세요.</div>
+          <div style="padding: 28px; text-align: center; font-size: 14px; color: var(--muted); background: var(--soft); border: 1px dashed var(--line); border-radius: 12px">{{ words.applyFirst }}</div>
         </sc-if>
 
         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line)">
-          <span style="font-size: 14px; font-weight: 700">조건 {{ constraintCount }}개</span>
-          <input value="{{ search }}" onChange="{{ onSearch }}" aria-label="조건에서 이름 검색" placeholder="이름 검색" style="width: 140px; padding: 8px 13px; font-size: 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface)" />
+          <span style="font-size: 14px; font-weight: 700">{{ rulesCountLabel }}</span>
+          <input value="{{ search }}" onChange="{{ onSearch }}" aria-label="{{ words.search }}" placeholder="{{ words.search }}" style="width: 140px; padding: 8px 13px; font-size: 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface)" />
           <span style="flex: 1; min-width: 10px"></span>
-          <button onClick="{{ pickConstraintFile }}" style="padding: 8px 14px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; cursor: pointer" style-hover="color: var(--text)">조건 파일 가져오기</button>
-          <button onClick="{{ exportConstraints }}" style="padding: 8px 14px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; cursor: pointer" style-hover="color: var(--text)">조건 파일로 내보내기</button>
-          <button onClick="{{ clearConstraints }}" style="padding: 8px 14px; font-size: 14px; color: #9d4a52; background: transparent; border: 1px solid #eccfd2; border-radius: 999px; cursor: pointer" style-hover="background: #fbeef0">전체 삭제</button>
+          <button onClick="{{ pickConstraintFile }}" style="padding: 8px 14px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; cursor: pointer" style-hover="color: var(--text)">{{ words.importRules }}</button>
+          <button onClick="{{ exportConstraints }}" style="padding: 8px 14px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; cursor: pointer" style-hover="color: var(--text)">{{ words.exportRules }}</button>
+          <button onClick="{{ clearConstraints }}" style="padding: 8px 14px; font-size: 14px; color: #9d4a52; background: transparent; border: 1px solid #eccfd2; border-radius: 999px; cursor: pointer" style-hover="background: #fbeef0">{{ words.clearRules }}</button>
           <input type="file" accept=".txt,.json" ref="{{ constraintFileRef }}" onChange="{{ onConstraintFile }}" style="display: none" />
         </div>
         <div style="display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px">
@@ -131,7 +264,7 @@
               <b style="{{ c.styleA }}">{{ c.a }}</b>
               <span style="{{ c.opStyle }}">{{ c.op }}</span>
               <b style="{{ c.styleB }}">{{ c.b }}</b>
-              <button onClick="{{ c.remove }}" title="삭제" style="border: none; background: var(--line); color: var(--muted); width: 20px; height: 20px; line-height: 1; border-radius: 999px; cursor: pointer; font-size: 14px">×</button>
+              <button onClick="{{ c.remove }}" title="{{ words.remove }}" style="border: none; background: var(--line); color: var(--muted); width: 20px; height: 20px; line-height: 1; border-radius: 999px; cursor: pointer; font-size: 14px">×</button>
             </span>
           </sc-for>
         </div>
@@ -141,13 +274,13 @@
     <!-- STEP 3 -->
     <section style="background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 28px; box-shadow: 0 8px 28px rgba(26,52,54,0.06)">
       <div style="display: flex; align-items: baseline; gap: 12px; padding-bottom: 18px; border-bottom: 1px solid var(--line)">
-        <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.2em; color: var(--accent)">STEP 03</span>
-        <h2 style="margin: 0; font-family: Pretendard, sans-serif; font-size: 23px; font-weight: 800">자리 조건</h2>
+        <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.2em; color: var(--accent)">{{ stepThree }}</span>
+        <h2 style="margin: 0; font-family: Pretendard, sans-serif; font-size: 23px; font-weight: 800">{{ words.settings }}</h2>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 20px">
         <div style="display: flex; flex-direction: column; gap: 10px">
-          <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.18em; color: var(--accent)">짝 구성</span>
+          <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.18em; color: var(--accent)">{{ words.pairing }}</span>
           <div style="display: flex; gap: 8px; flex-wrap: wrap">
             <sc-for list="{{ modeOptions }}" as="opt" hint-placeholder-count="3">
               <button aria-pressed="{{ opt.active }}" onClick="{{ opt.click }}" title="{{ opt.hint }}" style="{{ opt.style }}">{{ opt.label }}</button>
@@ -156,7 +289,7 @@
         </div>
         <div style="display: flex; flex-wrap: wrap; gap: 30px">
           <div style="display: flex; flex-direction: column; gap: 10px">
-            <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.18em; color: var(--accent)">교실 세로 줄</span>
+            <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.18em; color: var(--accent)">{{ words.columns }}</span>
             <div style="display: flex; gap: 8px; flex-wrap: wrap">
               <sc-for list="{{ colOptions }}" as="opt" hint-placeholder-count="3">
                 <button aria-pressed="{{ opt.active }}" onClick="{{ opt.click }}" style="{{ opt.style }}">{{ opt.label }}</button>
@@ -164,7 +297,7 @@
             </div>
           </div>
           <div style="display: flex; flex-direction: column; gap: 10px">
-            <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.18em; color: var(--accent)">추가 규칙</span>
+            <span style="font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.18em; color: var(--accent)">{{ words.extra }}</span>
             <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
               <button aria-pressed="{{ blockOption.active }}" onClick="{{ blockOption.click }}" title="{{ blockOption.hint }}" style="{{ blockOption.style }}">{{ blockOption.label }}</button>
               <button aria-pressed="{{ repeatOption.active }}" onClick="{{ repeatOption.click }}" title="{{ repeatOption.hint }}" style="{{ repeatOption.style }}">{{ repeatOption.label }}</button>
@@ -177,7 +310,7 @@
       </div>
 
       <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line)">
-        <button class="tool-draw" onClick="{{ draw }}" style="padding: 17px 40px; font-family: Pretendard, sans-serif; font-size: 19px; font-weight: 800; color: var(--accent-ink); background: var(--accent); border: none; border-radius: 12px; cursor: pointer; letter-spacing: 0.06em; box-shadow: 0 8px 22px rgba(26,25,19,0.25)" style-hover="background: var(--accent); color: var(--accent-ink)">자리 뽑기</button>
+        <button class="tool-draw" onClick="{{ draw }}" style="padding: 17px 40px; font-family: Pretendard, sans-serif; font-size: 19px; font-weight: 800; color: var(--accent-ink); background: var(--accent); border: none; border-radius: 12px; cursor: pointer; letter-spacing: 0.06em; box-shadow: 0 8px 22px rgba(26,25,19,0.25)" style-hover="background: var(--accent); color: var(--accent-ink)">{{ words.draw }}</button>
         <span style="font-size: 14px; color: var(--muted); line-height: 1.6; flex: 1; min-width: 240px">{{ planText }}</span>
       </div>
       <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ false }}">
@@ -189,14 +322,14 @@
     <sc-if value="{{ hasSeats }}" hint-placeholder-val="{{ false }}">
       <section style="display: flex; flex-direction: column; gap: 14px; margin-top: 8px">
         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
-          <h2 tabindex="-1" data-tool-result style="margin: 0; font-family: Pretendard, sans-serif; font-size: 24px; font-weight: 800; color: var(--text)">자리 배치 결과</h2>
+          <h2 tabindex="-1" data-tool-result style="margin: 0; font-family: Pretendard, sans-serif; font-size: 24px; font-weight: 800; color: var(--text)">{{ words.result }}</h2>
           <span style="font-size: 14px; color: var(--muted)">{{ resultMeta }}</span>
           <span style="flex: 1; min-width: 10px"></span>
-          <button onClick="{{ saveImage }}" style="padding: 11px 20px; font-size: 14px; font-weight: 700; color: var(--text); background: var(--soft); border: none; border-radius: 12px; cursor: pointer" style-hover="background: var(--accent); color: var(--accent-ink)">이미지로 저장</button>
-          <button onClick="{{ saveText }}" style="padding: 11px 16px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 12px; cursor: pointer" style-hover="border-color: var(--accent)">텍스트로 저장</button>
+          <button onClick="{{ saveImage }}" style="padding: 11px 20px; font-size: 14px; font-weight: 700; color: var(--text); background: var(--soft); border: none; border-radius: 12px; cursor: pointer" style-hover="background: var(--accent); color: var(--accent-ink)">{{ words.image }}</button>
+          <button onClick="{{ saveText }}" style="padding: 11px 16px; font-size: 14px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 12px; cursor: pointer" style-hover="border-color: var(--accent)">{{ words.text }}</button>
         </div>
         <div class="tool-result-board" style="background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 30px; box-shadow: 0 8px 28px rgba(26,52,54,0.06)">
-          <div style="max-width: 620px; margin: 0 auto 30px; padding: 13px; text-align: center; background: #232b26; color: #cfe0d5; border-radius: 12px; font-family: Pretendard, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.5em">칠판</div>
+          <div style="max-width: 620px; margin: 0 auto 30px; padding: 13px; text-align: center; background: #232b26; color: #cfe0d5; border-radius: 12px; font-family: Pretendard, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.5em">{{ words.board }}</div>
           <div style="display: flex; flex-direction: column; gap: 16px">
             <sc-for list="{{ rowsView }}" as="row" hint-placeholder-count="5">
               <div style="{{ row.style }}">
@@ -213,7 +346,7 @@
               </div>
             </sc-for>
           </div>
-          <div style="margin-top: 22px; text-align: center; font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.2em; color: var(--muted)">교실 뒤</div>
+          <div style="margin-top: 22px; text-align: center; font-family: Pretendard, sans-serif; font-size: 14px; letter-spacing: 0.2em; color: var(--muted)">{{ words.back }}</div>
         </div>
       </section>
     </sc-if>
@@ -222,6 +355,8 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;defaultPairMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;mf&quot;,&quot;same&quot;,&quot;any&quot;],&quot;default&quot;:&quot;mf&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;기본 설정&quot;},&quot;cheerOnSuccess&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;기본 설정&quot;}}">
 class Component extends DCLogic {
+  t = window.SeatLanguage.text;
+  refreshLanguage = () => this.forceUpdate();
   state = {
     input: "", students: [], constraints: [], sel: [], search: "",
     pairMode: "apart", step2: true,
@@ -232,6 +367,7 @@ class Component extends DCLogic {
   };
 
   componentDidMount() {
+    document.addEventListener("seat-language-change", this.refreshLanguage);
     this.rosterFileRef = React.createRef();
     this.constraintFileRef = React.createRef();
     this.prevFileRef = React.createRef();
@@ -246,9 +382,9 @@ class Component extends DCLogic {
 
   reducedMotion() { return typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches; }
 
-  componentWillUnmount() { clearInterval(this.timer); }
+  componentWillUnmount() { clearInterval(this.timer); document.removeEventListener("seat-language-change", this.refreshLanguage); }
 
-  say(note, kind) { this.setState({ note: note, noteKind: kind || "info" }); }
+  say(key, kind, values = {}) { this.setState({ note: key, noteValues: values, noteKind: kind || "info" }); }
 
   persistSlots(slots) {
     this.setState({ slots: slots });
@@ -392,7 +528,7 @@ class Component extends DCLogic {
   }
 
   draw = () => {
-    if (this.state.students.length < 2) { this.say("먼저 학생 명단을 적용해 주세요.", "error"); return; }
+    if (this.state.students.length < 2) { this.say("applyFirst", "error"); return; }
     const mode = this.effMode();
     let best = null, bestScore = Infinity, tries = 0;
     while (tries < 8000) {
@@ -416,38 +552,38 @@ class Component extends DCLogic {
     this.setState({ prevPairs: pairs, prevLabel: "" });
     try { localStorage.setItem("jaripick.class.prevpairs.v1", JSON.stringify(pairs)); } catch (e) {}
     if (best.v === 0) {
-      this.say(best.tries + "번째 시도에서 모든 제한 조건을 만족하는 자리를 찾았습니다.", "ok");
+      this.say("success", "ok", {n:best.tries});
       if (this.props.cheerOnSuccess !== false) {
         try { const a = new Audio("cheer.mp3"); a.volume = 0.7; a.play(); } catch (e) {}
       }
     } else {
-      this.say("8,000회 이내 탐색에서 모든 조건을 충족한 배치를 찾지 못했습니다. 위반 " + best.v + "건이 남은 후보를 보여줍니다. 조건을 줄이거나 '앞뒤 모둠까지 피하기'를 꺼보세요.", "error");
+      this.say("partial", "error", {n:best.v});
     }
   };
 
   // ---------- 명단·조건 저장 ----------
   applyRoster = () => {
     const list = this.parseRoster(this.state.input);
-    if (!list.length) { this.say("명단을 읽지 못했습니다. 형식을 확인해 주세요.", "error"); return; }
+    if (!list.length) { this.say("badRoster", "error"); return; }
     const names = list.map(s => s.name);
     const constraints = this.state.constraints.filter(c => names.indexOf(c[0]) >= 0 && names.indexOf(c[1]) >= 0);
     this.setState({ students: list, constraints: constraints, sel: [], seats: null });
-    this.say(list.length + "명의 명단을 적용했습니다.", "ok");
+    this.say("applied", "ok", {n:list.length});
   };
 
   clearRoster = () => {
     this.setState({ input: "", students: [], constraints: [], sel: [], seats: null });
-    this.say("모두 비웠습니다.", "info");
+    this.say("cleared", "info");
   };
 
   saveSlot = () => {
     const name = (this.state.rosterName || "").trim();
-    if (!name) { this.say("저장할 이름을 입력해 주세요.", "error"); return; }
-    if (!this.state.students.length) { this.say("적용된 명단이 없습니다.", "error"); return; }
+    if (!name) { this.say("needName", "error"); return; }
+    if (!this.state.students.length) { this.say("noRoster", "error"); return; }
     const slots = Object.assign({}, this.state.slots);
     slots[name] = { students: this.state.students, constraints: this.state.constraints };
     this.persistSlots(slots);
-    this.say("'" + name + "' 명단과 제한 조건을 저장했습니다.", "ok");
+    this.say("slotSaved", "ok", {name});
   };
 
   loadSlot(name) {
@@ -457,7 +593,7 @@ class Component extends DCLogic {
       students: s.students || [], constraints: s.constraints || [],
       input: this.rosterToText(s.students || []), rosterName: name, sel: [], seats: null
     });
-    this.say("'" + name + "'을 불러왔습니다. (학생 " + (s.students || []).length + "명, 조건 " + (s.constraints || []).length + "개)", "ok");
+    this.say("slotLoaded", "ok", {name, n:(s.students || []).length, rules:(s.constraints || []).length});
   }
 
   removeSlot(name) {
@@ -472,18 +608,18 @@ class Component extends DCLogic {
     const r = new FileReader();
     r.onload = ev => {
       const list = this.parseRoster(ev.target.result);
-      if (!list.length) { this.say("파일을 읽지 못했습니다.", "error"); return; }
+      if (!list.length) { this.say("badFile", "error"); return; }
       this.setState({ students: list, input: this.rosterToText(list), sel: [], seats: null });
-      this.say(file.name + " 에서 " + list.length + "명을 불러왔습니다.", "ok");
+      this.say("imported", "ok", {name:file.name, n:list.length});
     };
     r.readAsText(file);
     e.target.value = "";
   };
 
   exportRoster = () => {
-    if (!this.state.students.length) { this.say("내보낼 명단이 없습니다.", "error"); return; }
+    if (!this.state.students.length) { this.say("noRoster", "error"); return; }
     const json = JSON.stringify(this.state.students.map(s => [s.name, s.gender]));
-    this.download((this.state.rosterName || "학생") + " 명단.txt", "[\n" + json.slice(1, -1) + "\n]");
+    this.download(this.t("rosterFile", {name:this.state.rosterName || this.t("student")}) + ".txt", "[\n" + json.slice(1, -1) + "\n]");
   };
 
   // ---------- 제한 조건 ----------
@@ -497,9 +633,9 @@ class Component extends DCLogic {
     const together = this.state.pairMode === "together";
     const dup = this.state.constraints.some(c =>
       ((c[0] === a && c[1] === b) || (c[0] === b && c[1] === a)) && ((c[2] === "같이") === together));
-    if (dup) { this.setState({ sel: [] }); this.say(a + " · " + b + " 조건은 이미 있습니다.", "info"); return; }
+    if (dup) { this.setState({ sel: [] }); this.say("duplicate", "info", {a,b}); return; }
     this.setState({ constraints: this.state.constraints.concat([together ? [a, b, "같이"] : [a, b]]), sel: [] });
-    this.say(a + " 와 " + b + (together ? " 를 꼭 짝으로" : " 를 짝이 되지 않게") + " 설정했습니다.", "ok");
+    this.say("ruleAdded", "ok", {a,b, ruleKey:together ? "together" : "apart"});
   }
 
   removeConstraint(i) {
@@ -508,7 +644,7 @@ class Component extends DCLogic {
     this.setState({ constraints: cs });
   }
 
-  clearConstraints = () => { this.setState({ constraints: [] }); this.say("제한 조건을 모두 삭제했습니다.", "info"); };
+  clearConstraints = () => { this.setState({ constraints: [] }); this.say("rulesCleared", "info"); };
 
   onConstraintFile = e => {
     const file = e.target.files && e.target.files[0];
@@ -523,16 +659,16 @@ class Component extends DCLogic {
           return base;
         });
         this.setState({ constraints: cs });
-        this.say("제한 조건 " + cs.length + "개를 불러왔습니다.", "ok");
-      } catch (err) { this.say("제한 조건 파일을 읽지 못했습니다.", "error"); }
+        this.say("rulesLoaded", "ok", {n:cs.length});
+      } catch (err) { this.say("badRules", "error"); }
     };
     r.readAsText(file);
     e.target.value = "";
   };
 
   exportConstraints = () => {
-    if (!this.state.constraints.length) { this.say("내보낼 제한 조건이 없습니다.", "error"); return; }
-    this.download((this.state.rosterName || "학생") + " 제한조건.txt", JSON.stringify(this.state.constraints, null, 2));
+    if (!this.state.constraints.length) { this.say("noExportRules", "error"); return; }
+    this.download(this.t("rulesFile", {name:this.state.rosterName || this.t("student")}) + ".txt", JSON.stringify(this.state.constraints, null, 2));
   };
 
   onPrevFile = e => {
@@ -543,16 +679,18 @@ class Component extends DCLogic {
       const raw = String(ev.target.result || "").trim();
       const pairs = [];
       raw.split(/\r?\n/).forEach(line => {
-        const body = line.indexOf(":") >= 0 ? line.slice(line.indexOf(":") + 1) : line;
+        // Older charts used a colon after the row label. A colon inside a seat is part of the name.
+        const colon = line.indexOf(":"), divider = line.indexOf("|");
+        const body = colon >= 0 && (divider < 0 || colon < divider) ? line.slice(colon + 1) : line;
         body.split(/[|]/).forEach(cell => {
           const names = cell.split(/[·,]/).map(x => x.trim()).filter(Boolean);
           if (names.length === 2) pairs.push(names.sort().join("|"));
         });
       });
-      if (!pairs.length) { this.say("지난 배치 파일을 읽지 못했습니다. 이 프로그램에서 저장한 결과 파일을 넣어주세요.", "error"); return; }
+      if (!pairs.length) { this.say("badPrevious", "error"); return; }
       this.setState({ prevPairs: pairs, prevLabel: file.name, ruleAvoidRepeat: true, seats: null });
       try { localStorage.setItem("jaripick.class.prevpairs.v1", JSON.stringify(pairs)); } catch (err) {}
-      this.say("지난 배치의 짝 " + pairs.length + "쌍을 불러왔습니다. 이 짝들은 최대한 피해서 뽑습니다.", "ok");
+      this.say("pairsLoaded", "ok", {n:pairs.length});
     };
     r.readAsText(file);
     e.target.value = "";
@@ -564,10 +702,10 @@ class Component extends DCLogic {
     const lines = [];
     for (let r = 0; r * cols < desks.length; r++) {
       const cells = desks.slice(r * cols, r * cols + cols)
-        .map(d => (d.length ? d.map(s => s.name).join("·") : "빈자리"));
-      lines.push((r + 1) + "줄 | " + cells.join(" | "));
+        .map(d => (d.length ? d.map(s => s.name).join("·") : this.t("empty")));
+      lines.push(this.t("row", {n:r+1}) + " | " + cells.join(" | "));
     }
-    this.download((this.state.rosterName || "교실") + " 자리배치.txt", "칠판\n" + lines.join("\n") + "\n교실 뒤");
+    this.download(this.t("chartFile", {name:this.state.rosterName || this.t("classroom")}) + ".txt", [this.t("board"), ...lines, this.t("back")].join("\n"));
   };
 
   saveImage = async () => {
@@ -591,14 +729,14 @@ class Component extends DCLogic {
     x.textBaseline = "middle";
     x.fillStyle = "#16685e";
     x.font = '500 12px "Pretendard", monospace';
-    x.fillText("CLASSROOM SEAT DRAW · MADE BY CHXNHO", pad, 44);
+    x.fillText(this.t("credit"), pad, 44, W - pad * 2);
     x.fillStyle = "#1a3436";
     x.font = '800 32px "Pretendard", serif';
-    x.fillText((this.state.rosterName ? this.state.rosterName + " " : "") + "교실 자리 배치 시스템", pad, 78, W - pad * 2);
+    x.fillText((this.state.rosterName ? this.state.rosterName + " " : "") + this.t("title"), pad, 78, W - pad * 2);
     const d = new Date();
     x.font = '400 14px "Pretendard", sans-serif';
     x.fillStyle = "#486366";
-    x.fillText(d.getFullYear() + "." + (d.getMonth() + 1) + "." + d.getDate() + "   전체 " + this.state.students.length + "명   " + (cols * 2) + "줄   " + this.modeLabel(), pad, 104);
+    x.fillText([d.toLocaleDateString(window.SeatLanguage.language), this.t("total",{n:this.state.students.length}), this.t("cols",{n:cols*2}), this.modeLabel()].join("   "), pad, 104, W-pad*2);
     x.strokeStyle = "#a3b9b0"; x.lineWidth = 1;
     x.beginPath(); x.moveTo(pad, 126); x.lineTo(W - pad, 126); x.stroke();
     const bw = Math.min(560, W - pad * 2);
@@ -607,7 +745,7 @@ class Component extends DCLogic {
     x.fillStyle = "#ffffff";
     x.font = '700 16px "Pretendard", serif';
     x.textAlign = "center";
-    x.fillText("칠  판", W / 2, 171);
+    x.fillText(this.t("board"), W / 2, 171);
     x.textAlign = "left";
     for (let r = 0; r < rows; r++) {
       const ry = 214 + r * (seatH + 16 + rowGap);
@@ -641,12 +779,13 @@ class Component extends DCLogic {
     x.fillStyle = "#486366";
     x.font = '500 12px "Pretendard", monospace';
     x.textAlign = "center";
-    x.fillText("교실 뒤", W / 2, H - 42);
+    x.fillText(this.t("back"), W / 2, H - 42);
+    const filename = this.t("chartFile", {name:this.state.rosterName || this.t("classroom")}) + ".png";
     c.toBlob(blob => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = (this.state.rosterName || "교실") + " 자리배치.png";
+      a.download = filename;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1500);
     }, "image/png");
@@ -682,10 +821,11 @@ class Component extends DCLogic {
 
   modeLabel() {
     const m = this.effMode();
-    return m === "same" ? "같은 성별 짝" : m === "any" ? "성별 상관없이" : "남녀 짝";
+    return this.t(m === "same" ? "same" : m === "any" ? "any" : "mixed");
   }
 
   renderVals() {
+    const words = window.SeatLanguage.words, t = this.t;
     const s = this.state;
     const mode = this.effMode();
     const males = s.students.filter(x => x.gender === "남");
@@ -704,7 +844,7 @@ class Component extends DCLogic {
       .map(o => {
         const together = o.c[2] === "같이";
         return {
-          a: o.c[0], b: o.c[1], op: together ? "짝으로" : "짝 금지",
+          a: o.c[0], b: o.c[1], op: together ? words.together : words.apart,
           styleA: this.nameStyle(o.c[0]), styleB: this.nameStyle(o.c[1]),
           opStyle: {
             fontFamily: "Pretendard, sans-serif", fontSize: 14, letterSpacing: "0.08em",
@@ -722,41 +862,41 @@ class Component extends DCLogic {
       });
 
     const pairModes = [
-      { key: "apart", label: "짝 되지 않게" },
-      { key: "together", label: "꼭 짝으로" }
+      { key: "apart", label: words.apart },
+      { key: "together", label: words.together }
     ].map(p => ({ label: p.label, active: s.pairMode === p.key, style: pill(s.pairMode === p.key), click: () => this.setState({ pairMode: p.key, sel: [] }) }));
 
     const modeOptions = [
-      { key: "mf", label: "남녀 짝", hint: "가능한 한 남학생·여학생이 짝이 되도록" },
-      { key: "same", label: "같은 성별 짝", hint: "남학생끼리, 여학생끼리 짝이 되도록" },
-      { key: "any", label: "성별 상관없이", hint: "성별을 따지지 않고 무작위" }
+      { key: "mf", label: words.mixed, hint: words.mixedHint },
+      { key: "same", label: words.same, hint: words.sameHint },
+      { key: "any", label: words.any, hint: words.anyHint }
     ].map(m => ({ label: m.label, hint: m.hint, active: mode === m.key, style: pill(mode === m.key, "wide"), click: () => this.setState({ mode: m.key, seats: null }) }));
 
     const colOptions = [2, 3, 4].map(n => ({
-      label: (n * 2) + "줄 (2명×" + n + ")", active: s.deskCols === n, style: pill(s.deskCols === n, "wide"),
+      label: t("columnOption",{n:n*2, desks:n}), active: s.deskCols === n, style: pill(s.deskCols === n, "wide"),
       click: () => this.setState({ deskCols: n, seats: null })
     }));
 
     const blockOption = {
       active: s.ruleBlock,
-      label: (s.ruleBlock ? "✓ " : "") + "앞뒤 모둠까지 피하기",
-      hint: "짝뿐 아니라 바로 앞·뒤 짝(4명 모둠)에서도 만나지 않게",
+      label: (s.ruleBlock ? "✓ " : "") + words.block,
+      hint: words.blockHint,
       style: pill(s.ruleBlock, "wide"), click: () => this.setState({ ruleBlock: !s.ruleBlock, seats: null })
     };
 
     const repeatOption = {
       active: s.ruleAvoidRepeat,
-      label: (s.ruleAvoidRepeat ? "✓ " : "") + "지난 짝과 겹치지 않게",
-      hint: "지난번 짝이었던 학생들을 최대한 피합니다",
+      label: (s.ruleAvoidRepeat ? "✓ " : "") + words.avoidPrevious,
+      hint: words.avoidHint,
       style: pill(s.ruleAvoidRepeat, "wide"), click: () => this.setState({ ruleAvoidRepeat: !s.ruleAvoidRepeat, seats: null })
     };
 
     const prevOn = s.ruleAvoidRepeat;
     const prevLoad = {
-      label: "지난 배치 불러오기",
-      hint: prevOn ? "이 프로그램에서 저장한 '자리배치.txt'를 넣어주세요" : "'지난 짝과 겹치지 않게'를 먼저 켜주세요",
+      label: words.loadPrevious,
+      hint: prevOn ? words.loadHint : words.enablePrevious,
       status: prevOn
-        ? (s.prevLabel ? "불러온 파일 : " + s.prevLabel : (s.prevPairs.length ? "직전에 뽑은 짝을 기준으로 피합니다" : "지난 결과 파일을 불러오면 그 짝을 피합니다"))
+        ? (s.prevLabel ? t("loadedFile",{name:s.prevLabel}) : (s.prevPairs.length ? words.lastUsed : words.previousHint))
         : "",
       style: {
         padding: "9px 17px", fontSize: 14, fontWeight: 700, borderRadius: 2, whiteSpace: "nowrap",
@@ -766,15 +906,15 @@ class Component extends DCLogic {
         cursor: prevOn ? "pointer" : "not-allowed", transition: "all .15s ease"
       },
       click: () => {
-        if (!prevOn) { this.say("'지난 짝과 겹치지 않게'를 먼저 켜주세요.", "info"); return; }
+        if (!prevOn) { this.say("enablePrevious", "info"); return; }
         if (this.prevFileRef && this.prevFileRef.current) this.prevFileRef.current.click();
       }
     };
 
     const planText = s.students.length
-      ? this.modeLabel() + " · 세로 " + (plan.cols * 2) + "줄 · " + plan.rows + "줄로 앉힘 (한 줄에 2명씩 " + plan.cols + "짝)"
-        + (plan.seats > s.students.length ? " · 빈자리 " + (plan.seats - s.students.length) + "칸" : "")
-      : "명단을 적용하면 학생 수에 맞춰 줄 수가 자동으로 계산됩니다.";
+      ? t("plan", {mode:this.modeLabel(), cols:plan.cols*2, rows:plan.rows, desks:plan.cols})
+        + (plan.seats > s.students.length ? " · " + t("emptyCount",{n:plan.seats-s.students.length}) : "")
+      : words.planHint;
 
     const desks = s.seats || [];
     const cols = s.deskCols;
@@ -832,27 +972,28 @@ class Component extends DCLogic {
       input: s.input, onInput: e => this.setState({ input: e.target.value }),
       rosterName: s.rosterName, onRosterName: e => this.setState({ rosterName: e.target.value }),
       search: s.search, onSearch: e => this.setState({ search: e.target.value }),
-      total: s.students.length, maleCount: males.length, femaleCount: females.length,
+      words, totalLabel:t("total",{n:s.students.length}), maleLabel:t("boys",{n:males.length}), femaleLabel:t("girls",{n:females.length}),
+      stepOne:t("step",{n:"01"}), stepTwo:t("step",{n:"02"}), stepThree:t("step",{n:"03"}), rulesCountLabel:t("rulesCount",{n:s.constraints.length}),
       hasStudents: s.students.length > 0, noStudents: s.students.length === 0,
       maleChips: males.map(chip), femaleChips: females.map(chip),
       selHint: s.sel.length === 1
-        ? s.sel[0] + " 선택됨 — 짝이 될 학생을 눌러주세요. (다시 누르면 취소)"
-        : (s.pairMode === "together" ? "지금은 '꼭 짝으로' 조건을 만듭니다." : "지금은 '짝 되지 않게' 조건을 만듭니다."),
+        ? t("selected",{name:s.sel[0]})
+        : t("modeHint",{mode:s.pairMode==="together" ? words.together : words.apart}),
       pairModes: pairModes,
       constraintCount: s.constraints.length, constraintItems: constraintItems,
       constraintSummary: s.constraints.length
-        ? "짝 금지 " + (s.constraints.length - togetherCount) + "건 · 꼭 짝 " + togetherCount + "건"
-        : "설정된 조건이 없습니다",
+        ? t("rulesSummary",{a:s.constraints.length-togetherCount,b:togetherCount})
+        : words.noRules,
       step2Open: s.step2, step2Hidden: !s.step2,
       toggleStep2: () => this.setState({ step2: !s.step2 }),
       modeOptions: modeOptions, colOptions: colOptions,
       blockOption: blockOption, repeatOption: repeatOption, prevLoad: prevLoad,
       prevFileRef: this.prevFileRef, onPrevFile: this.onPrevFile,
       planText: planText,
-      note: s.note, hasNote: !!s.note, noteStyle: noteStyle,
+      note: s.note ? t(s.note, s.note==="ruleAdded" ? {...s.noteValues,rule:words[s.noteValues.ruleKey]} : s.noteValues) : "", hasNote: !!s.note, noteStyle: noteStyle,
       hasSeats: desks.length > 0, rowsView: rowsView,
       resultMeta: desks.length
-        ? this.modeLabel() + " · " + s.lastTries + "회 시도" + (s.lastViolations ? " · 조건 위반 " + s.lastViolations + "건" : " · 조건 완전 충족")
+        ? this.modeLabel() + " · " + t("attempts",{n:s.lastTries}) + " · " + (s.lastViolations ? t("violations",{n:s.lastViolations}) : words.allMet)
         : "",
       slots: slotNames.map(n => ({ label: n, load: () => this.loadSlot(n), remove: () => this.removeSlot(n) })),
       hasSlots: slotNames.length > 0,
